@@ -7,7 +7,4 @@
   <ItemGroup>
     <ProjectReference Include="..\SiteCore.Library.BAL\SiteCore.Library.BAL.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="sqlite" Version="3.13.0" />
-  </ItemGroup>
 </Project>

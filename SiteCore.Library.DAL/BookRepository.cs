@@ -9,6 +9,7 @@ namespace SiteCore.Library.DAL
     {
         public BookRepository()
         {
+            
         }
 
         public int AddNew(Book book)
@@ -40,6 +41,8 @@ namespace SiteCore.Library.DAL
             });
 
             return bookList;
+
+
         }
 
         public void Update(Book book)
