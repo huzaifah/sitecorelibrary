@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using SiteCore.Library.BAL.Interfaces;
 using SiteCore.Library.BAL.Services;
 using SiteCore.Library.DAL;
@@ -16,9 +17,9 @@ namespace SiteCore.Library.UI.Controllers
         private readonly IBookRepository bookRepository;
         private readonly BookService bookService;
 
-        public BookController()
+        public BookController(IConfiguration configuration)
         {
-            bookRepository = new BookRepository();
+            bookRepository = new BookRepository(configuration);
             bookService = new BookService(bookRepository);
         }
 
