@@ -37,6 +37,12 @@ namespace SiteCore.Library.UI.Controllers
         // GET: Book/Details/5
         public ActionResult Details(int id)
         {
+            var newId = bookService.AddNewBook(new BAL.Entities.Book
+            {
+                Author = "Pokjat",
+                Title = "Anime" + DateTime.Now.ToString()
+            });
+
             return View();
         }
 

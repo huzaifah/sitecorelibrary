@@ -19,7 +19,29 @@ namespace SiteCore.Library.DAL
 
         public int AddNew(Book book)
         {
-            throw new NotImplementedException();
+            string connectionString = _configuration["ConnectionStrings:DefaultConnection"];
+            int newId = 0;
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string sql =
+                    $"Insert Into Books (Title, Author) OUTPUT INSERTED.Id Values ('{book.Title}', '{book.Author}')";
+
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    command.CommandType = CommandType.Text;
+
+                    SqlParameter param = new SqlParameter("@Id", SqlDbType.Int, 4);
+                    param.Direction = ParameterDirection.Output;
+                    command.Parameters.Add(param);
+                    command.ExecuteNonQuery();
+
+                    //newId = Convert.ToInt32(param.Value);
+                }
+            }
+
+            return newId;
         }
 
         public void Delete(int bookId)
