@@ -20,10 +20,25 @@ namespace SiteCore.Library.BAL.Services
             return _bookRepository.GetAll().ToList();
         }
 
-        public int AddNewBook(Book book)
+        public void AddNewBook(Book book)
         {
-            int bookId = _bookRepository.AddNew(book);
-            return bookId;
+            _bookRepository.AddNew(book);
+        }
+
+        public Book GetById(int id)
+        {
+            var book = _bookRepository.GetById(id);
+            return book;
+        }
+
+        public void UpdateBook(int id, Book book)
+        {
+            _bookRepository.Update(id, book);
+        }
+
+        public void DeleteBook(int id)
+        {
+            _bookRepository.Delete(id);
         }
     }
 }

@@ -6,9 +6,10 @@ namespace SiteCore.Library.BAL.Interfaces
 {
     public interface IBookRepository
     {
-        int AddNew(Book book);
-        void Update(Book book);
+        void AddNew(Book book);
+        void Update(int id, Book book);
         void Delete(int bookId);
+        Book GetById(int id);
         IList<Book> GetAll();
     }
 }

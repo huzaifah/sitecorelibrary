@@ -11,56 +11,65 @@ namespace SiteCore.Library.DAL
     public class BookRepository : IBookRepository
     {
         private readonly IConfiguration _configuration;
+        readonly string connectionString;
 
         public BookRepository(IConfiguration configuration)
         {
             _configuration = configuration;
+            connectionString = _configuration["ConnectionStrings:DefaultConnection"];
         }
 
-        public int AddNew(Book book)
+        public void AddNew(Book book)
         {
-            string connectionString = _configuration["ConnectionStrings:DefaultConnection"];
-            int newId = 0;
-
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
                 string sql =
-                    $"Insert Into Books (Title, Author) OUTPUT INSERTED.Id Values ('{book.Title}', '{book.Author}')";
+                    $"Insert Into Books (Title, Author) Values ('@Title', '@Author')";
 
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
+                    SqlParameter titleParameter = new SqlParameter("Title", book.Title);
+                    SqlParameter authorParameter = new SqlParameter("Author", book.Author);
+
+                    command.Parameters.Add(titleParameter);
+                    command.Parameters.Add(authorParameter);
+
                     command.CommandType = CommandType.Text;
-
-                    SqlParameter param = new SqlParameter("@Id", SqlDbType.Int, 4);
-                    param.Direction = ParameterDirection.Output;
-                    command.Parameters.Add(param);
                     command.ExecuteNonQuery();
-
-                    //newId = Convert.ToInt32(param.Value);
                 }
             }
-
-            return newId;
         }
 
         public void Delete(int bookId)
         {
-            throw new NotImplementedException();
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string sql =
+                    $"Delete From Books Where Id=@Id";
+
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    SqlParameter idParameter = new SqlParameter("Id", bookId);
+
+                    command.Parameters.Add(idParameter);
+
+                    command.CommandType = CommandType.Text;
+                    command.ExecuteNonQuery();
+                }
+            }
         }
 
         public IList<Book> GetAll()
         {
             var bookList = new List<Book>();
 
-            string connectionString = _configuration["ConnectionStrings:DefaultConnection"];
-
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
                 string sql = "Select * From Books";
                 
-
                 SqlCommand command = new SqlCommand(sql, connection);
                 using (SqlDataReader dataReader = command.ExecuteReader())
                 {
@@ -79,9 +88,55 @@ namespace SiteCore.Library.DAL
             return bookList;
         }
 
-        public void Update(Book book)
+        public Book GetById(int id)
         {
-            throw new NotImplementedException();
+            Book bookToEdit = new Book();
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string sql = "Select * From Books Where Id = @Id";
+
+                SqlCommand command = new SqlCommand(sql, connection);
+                SqlParameter idParameter = new SqlParameter("Id", id);
+                command.Parameters.Add(idParameter);
+
+                using (SqlDataReader dataReader = command.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        bookToEdit.Id = Convert.ToInt32(dataReader["Id"]);
+                        bookToEdit.Title = dataReader["Title"].ToString();
+                        bookToEdit.Author = dataReader["Author"].ToString();
+                    }
+                }
+            }
+
+            return bookToEdit;
+        }
+
+        public void Update(int id, Book book)
+        {
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string sql =
+                    $"Update Books set Title=@Title, Author=@Author Where Id=@Id";
+
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    SqlParameter titleParameter = new SqlParameter("Title", book.Title);
+                    SqlParameter authorParameter = new SqlParameter("Author", book.Author);
+                    SqlParameter idParameter = new SqlParameter("Id", id);
+
+                    command.Parameters.Add(titleParameter);
+                    command.Parameters.Add(authorParameter);
+                    command.Parameters.Add(idParameter);
+
+                    command.CommandType = CommandType.Text;
+                    command.ExecuteNonQuery();
+                }
+            }
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using SiteCore.Library.BAL.Entities;
 using SiteCore.Library.BAL.Interfaces;
 using SiteCore.Library.BAL.Services;
 using SiteCore.Library.DAL;
@@ -37,13 +38,8 @@ namespace SiteCore.Library.UI.Controllers
         // GET: Book/Details/5
         public ActionResult Details(int id)
         {
-            var newId = bookService.AddNewBook(new BAL.Entities.Book
-            {
-                Author = "Pokjat",
-                Title = "Anime" + DateTime.Now.ToString()
-            });
-
-            return View();
+            var book = bookService.GetById(id);
+            return View(book);
         }
 
         // GET: Book/Create
@@ -55,39 +51,45 @@ namespace SiteCore.Library.UI.Controllers
         // POST: Book/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult Create(Book book)
         {
-            try
+            if (ModelState.IsValid)
             {
-                // TODO: Add insert logic here
+                try
+                {
+                    bookService.AddNewBook(book);
 
-                return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Index));
+                }
+                catch
+                {
+                    return View();
+                }
             }
-            catch
-            {
-                return View();
-            }
+
+            return View(book);
         }
 
         // GET: Book/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            var book = bookService.GetById(id);
+            return View(book);
         }
 
         // POST: Book/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult Edit(int id, Book book)
         {
             try
             {
-                // TODO: Add update logic here
-
+                bookService.UpdateBook(id, book);
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception ex)
             {
+                TempData["ErrorMessage"] = ex.Message;
                 return View();
             }
         }
@@ -95,22 +97,23 @@ namespace SiteCore.Library.UI.Controllers
         // GET: Book/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            var book = bookService.GetById(id);
+            return View(book);
         }
 
         // POST: Book/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public ActionResult DeleteConfirmed(int id)
         {
             try
             {
-                // TODO: Add delete logic here
-
+                bookService.DeleteBook(id);
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception ex)
             {
+                TempData["ErrorMessage"] = ex.Message;
                 return View();
             }
         }
