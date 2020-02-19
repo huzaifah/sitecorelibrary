@@ -8,6 +8,7 @@ namespace SiteCore.Library.BAL.Entities
         public int Id { get; set; }
         public string Title { get; set; }
         public IList<string> Author { get; set; }
+        public IList<int> AuthorId { get; set; }
 
         public string AuthorList
         {
@@ -20,6 +21,7 @@ namespace SiteCore.Library.BAL.Entities
         public Book()
         {
             Author = new List<string>();
+            AuthorId = new List<int>();
         }
     }
 }

@@ -39,7 +39,42 @@ namespace SiteCore.Library.DAL
 
                     command.CommandType = CommandType.Text;
                     command.ExecuteNonQuery();
+               
                 }
+
+                string sqlQueryNewBook = "Select * From Books Where Title = @Title";
+
+                SqlCommand commandQuery = new SqlCommand(sqlQueryNewBook, connection);
+                SqlParameter bookTitleParameter = new SqlParameter("Title", book.Title);
+                commandQuery.Parameters.Add(bookTitleParameter);
+
+                using (SqlDataReader dataReader = commandQuery.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        book.Id = Convert.ToInt32(dataReader["Id"]);
+                    }
+                }
+
+                foreach (var authorId in book.AuthorId)
+                {
+                    sql =
+                    $"Insert Into BookAuthor (BookId, AuthorId) Values (@BookId, @AuthorId)";
+
+                    using (SqlCommand command = new SqlCommand(sql, connection))
+                    {
+                        SqlParameter bookIdParameter = new SqlParameter("BookId", book.Id);
+                        SqlParameter authorParameter = new SqlParameter("AuthorId", authorId);
+
+                        command.Parameters.Add(bookIdParameter);
+                        command.Parameters.Add(authorParameter);
+
+                        command.CommandType = CommandType.Text;
+                        command.ExecuteNonQuery();
+                    }
+                }
+
+                
             }
         }
 
@@ -105,6 +140,32 @@ namespace SiteCore.Library.DAL
             }
 
             return bookList;
+        }
+
+        public IList<Author> GetAllAuthors()
+        {
+            var authors = new List<Author>();
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string sql = "SELECT Id, Name FROM Authors";
+
+                SqlCommand command = new SqlCommand(sql, connection);
+                using (SqlDataReader dataReader = command.ExecuteReader())
+                {
+                    while (dataReader.Read())
+                    {
+                        authors.Add(new Author
+                        {
+                            Id = Convert.ToInt32(dataReader["Id"]),
+                            Name = dataReader["Name"].ToString()
+                        });
+                    }
+                }
+            }
+
+            return authors;
         }
 
         public Book GetById(int id)

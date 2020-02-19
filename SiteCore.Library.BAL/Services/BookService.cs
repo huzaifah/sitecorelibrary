@@ -40,5 +40,10 @@ namespace SiteCore.Library.BAL.Services
         {
             _bookRepository.Delete(id);
         }
+
+        public List<Author> GetAuthors()
+        {
+            return _bookRepository.GetAllAuthors().ToList();
+        }
     }
 }

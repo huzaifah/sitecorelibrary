@@ -45,18 +45,35 @@ namespace SiteCore.Library.UI.Controllers
         // GET: Book/Create
         public ActionResult Create()
         {
-            return View();
+            var authors = bookService.GetAuthors();
+
+            var createBookViewModel = new CreateBookViewModel
+            {
+                AvailableAuthors = authors
+            };
+
+            return View(createBookViewModel);
         }
 
         // POST: Book/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Book book)
+        public ActionResult Create(CreateBookViewModel createBookViewModel)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
+                    var book = new Book()
+                    {
+                        Title = createBookViewModel.Book.Title
+                    };
+
+                    foreach (var authorId in createBookViewModel.SelectedAuthors)
+                    {
+                        book.AuthorId.Add(authorId);
+                    }
+
                     bookService.AddNewBook(book);
 
                     return RedirectToAction(nameof(Index));
@@ -67,7 +84,7 @@ namespace SiteCore.Library.UI.Controllers
                 }
             }
 
-            return View(book);
+            return View();
         }
 
         // GET: Book/Edit/5
