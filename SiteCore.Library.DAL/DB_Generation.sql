@@ -34,9 +34,95 @@ BEGIN TRANSACTION;
 -- CREATE TABLE "Books" ----------------------------------------
 CREATE TABLE [dbo].[Books] ( 
 	[Id] INT IDENTITY ( 1, 1 )  NOT NULL, 
-	[Title] VARCHAR( 256 ) NOT NULL, 
-	[Author] VARCHAR( 256 ) NULL, 
+	[Title] VARCHAR( 256 ) NOT NULL,
+	PRIMARY KEY ( [Id] ), 
 	CONSTRAINT [unique_Title] UNIQUE ( [Title] ) )
+GO;
+-- -------------------------------------------------------------
+
+COMMIT TRANSACTION;
+GO
+
+BEGIN TRANSACTION;
+
+-- CREATE TABLE "Authors" --------------------------------------
+CREATE TABLE [dbo].[Authors] ( 
+	[Id] INT IDENTITY ( 1, 1 )  NOT NULL, 
+	[Name] VARCHAR( 256 ) NOT NULL,
+	PRIMARY KEY ( [Id] ), 
+	CONSTRAINT [unique_Name] UNIQUE ( [Name] ) )
+GO;
+-- -------------------------------------------------------------
+
+-- CREATE INDEX "index_Id" -------------------------------------
+CREATE  INDEX [index_Id] ON [dbo].[Authors]( [Id] ASC )
+GO;
+-- -------------------------------------------------------------
+
+COMMIT TRANSACTION;
+GO
+
+BEGIN TRANSACTION;
+
+-- CREATE TABLE "BookAuthor" -----------------------------------
+CREATE TABLE [dbo].[BookAuthor] ( 
+	[BookId] INT NOT NULL, 
+	[AuthorId] INT NOT NULL )
+GO;
+-- -------------------------------------------------------------
+
+-- CREATE INDEX "index_AuthorId" -------------------------------
+CREATE  INDEX [index_AuthorId] ON [dbo].[BookAuthor]( [AuthorId] ASC )
+GO;
+-- -------------------------------------------------------------
+
+-- CREATE INDEX "index_BookId" ---------------------------------
+CREATE  INDEX [index_BookId] ON [dbo].[BookAuthor]( [BookId] ASC )
+GO;
+-- -------------------------------------------------------------
+
+COMMIT TRANSACTION;
+GO
+
+
+-- --------------------------------------------------------------------------------
+-- Create Links
+-- --------------------------------------------------------------------------------
+
+BEGIN TRANSACTION;
+
+-- CREATE LINK "lnk_Books_BookAuthor" --------------------------
+ALTER TABLE [dbo].[BookAuthor]
+	ADD CONSTRAINT [lnk_Books_BookAuthor]
+	FOREIGN KEY ([BookId])
+	REFERENCES [dbo].[Books]( [Id] )
+	ON DELETE Cascade
+	ON UPDATE Cascade
+GO;
+-- -------------------------------------------------------------
+
+-- CHANGE "ENABLED" OF "LINK "lnk_Books_BookAuthor" ------------
+ALTER TABLE [dbo].[BookAuthor] NOCHECK CONSTRAINT [lnk_Books_BookAuthor]
+GO;
+-- -------------------------------------------------------------
+
+COMMIT TRANSACTION;
+GO
+
+BEGIN TRANSACTION;
+
+-- CREATE LINK "lnk_Authors_BookAuthor" ------------------------
+ALTER TABLE [dbo].[BookAuthor]
+	ADD CONSTRAINT [lnk_Authors_BookAuthor]
+	FOREIGN KEY ([AuthorId])
+	REFERENCES [dbo].[Authors]( [Id] )
+	ON DELETE Cascade
+	ON UPDATE Cascade
+GO;
+-- -------------------------------------------------------------
+
+-- CHANGE "ENABLED" OF "LINK "lnk_Authors_BookAuthor" ----------
+ALTER TABLE [dbo].[BookAuthor] NOCHECK CONSTRAINT [lnk_Authors_BookAuthor]
 GO;
 -- -------------------------------------------------------------
 
@@ -50,11 +136,28 @@ GO
 
 SET IDENTITY_INSERT [dbo].[Books] ON
 GO
-INSERT INTO [dbo].[Books] ([Id],[Title],[Author]) VALUES ( 1,N'Programming in C#',N'Microsoft' );
-INSERT INTO [dbo].[Books] ([Id],[Title],[Author]) VALUES ( 2,N'Harry Porter',N'JK Rowling' );
+INSERT INTO [dbo].[Books] ([Id],[Title]) VALUES ( 3,N'Anime' );
+INSERT INTO [dbo].[Books] ([Id],[Title]) VALUES ( 2,N'Harry Porter' );
+INSERT INTO [dbo].[Books] ([Id],[Title]) VALUES ( 1,N'Programming in C#' );
 
 
 GO
 
 SET IDENTITY_INSERT [dbo].[Books] OFF
 GO
+SET IDENTITY_INSERT [dbo].[Authors] ON
+GO
+INSERT INTO [dbo].[Authors] ([Id],[Name]) VALUES ( 1,N'Ahmad' );
+INSERT INTO [dbo].[Authors] ([Id],[Name]) VALUES ( 2,N'Izzat' );
+
+
+GO
+
+SET IDENTITY_INSERT [dbo].[Authors] OFF
+GO
+INSERT INTO [dbo].[BookAuthor] ([BookId],[AuthorId]) VALUES ( 1,1 );
+INSERT INTO [dbo].[BookAuthor] ([BookId],[AuthorId]) VALUES ( 1,2 );
+
+
+GO
+
