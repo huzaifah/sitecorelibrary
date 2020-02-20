@@ -25,13 +25,32 @@ namespace SiteCore.Library.UI.Controllers
         }
 
         // GET: Book
-        public ActionResult Index()
+        public ActionResult Index(int? pageNumber, string sortOrder)
         {
-            var books = bookService.GetAll();
-            var bookViewModel = new BookViewModel()
+            int pageSize = 2;
+            ViewData["CurrentSort"] = sortOrder;
+            ViewData["BookSortParm"] = String.IsNullOrEmpty(sortOrder) ? "book_desc" : "";
+            ViewData["AuthorSortParm"] = sortOrder == "Author" ? "author_desc" : "Author";
+
+            var books = bookService.GetAll().AsQueryable();
+
+            switch (sortOrder)
             {
-                Books = books
-            };
+                case "book_desc":
+                    books = books.OrderByDescending(b => b.Title);
+                    break;
+                case "Author":
+                    books = books.OrderBy(b => b.AuthorList);
+                    break;
+                case "author_desc":
+                    books = books.OrderByDescending(b => b.AuthorList);
+                    break;
+                default:
+                    books = books.OrderBy(b => b.Title);
+                    break;
+            }
+
+            var bookViewModel = BookViewModel.Create(books.ToList(), pageNumber ?? 1, pageSize);
             return View(bookViewModel);
         }
 
